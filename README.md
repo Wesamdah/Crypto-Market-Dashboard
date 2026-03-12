@@ -1,40 +1,160 @@
-<<<<<<< HEAD
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Setup and Run Instructions
 
-## Getting Started
+### 1. Clone the repository
 
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+```
+git clone https://github.com/Wesamdah/Crypto-Market-Dashboard.git
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Navigate to the project directory
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+cd crypto-dashboard
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 3. Install dependencies
 
-## Learn More
+```
+npm install
+```
 
-To learn more about Next.js, take a look at the following resources:
+### 4. Run the development server
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+npm run dev
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Open your browser and navigate to:
 
-## Deploy on Vercel
+```
+http://localhost:3000
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-=======
-# Crypto-Market-Dashboard
->>>>>>> b5cadaf58f974180d741476a10f51f1dca11afd6
+# Environment / Setup Notes
+
+This project does **not require any environment variables**.
+
+Market data is retrieved from the public **Binance API**.
+
+REST API used for initial market data:
+
+```
+https://api.binance.com/api/v3/ticker/24hr
+```
+
+WebSocket stream used for real-time updates:
+
+```
+wss://stream.binance.com:9443/ws/<symbol>@ticker
+```
+
+No authentication or API keys are required.
+
+---
+
+# Key Assumptions
+
+Several assumptions were made during development:
+
+* Only a small set of markets (10 trading pairs) are displayed to keep the UI simple and focused.
+* Real-time WebSocket updates are applied only on the **market details page**.
+* Favorites and recently viewed markets are stored locally using **localStorage**.
+* Binance public API is assumed to be stable and available.
+* WebSocket messages are expected to arrive frequently, so UI updates are optimized to avoid unnecessary re-renders.
+
+---
+
+# Technical Trade-offs
+
+Some implementation decisions were made to balance simplicity and functionality within the assignment time constraints.
+
+### Local State vs Global State
+
+The application uses **React hooks and component state** instead of a global state manager (such as Redux or Zustand).
+This keeps the architecture simple and easy to maintain.
+
+### REST + WebSocket Combination
+
+REST API is used for the **initial markets list**, while WebSocket is used only for **real-time updates on the details page**.
+This prevents opening unnecessary WebSocket connections for multiple markets.
+
+### LocalStorage Persistence
+
+Favorites and recently viewed markets are stored using **localStorage** instead of a backend service.
+This keeps the application self-contained and simple.
+
+### UI Scope
+
+Advanced features such as trading charts or analytics were intentionally excluded to keep the focus on the core requirements of the assignment.
+
+---
+
+# Notes on Architecture
+
+### Application Structure
+
+The application follows a **component-based architecture** using the Next.js App Router.
+
+---
+
+UI components are separated from logic using **custom React hooks**.
+
+---
+
+### Real-Time Data Handling
+
+Real-time updates are handled using a custom hook:
+
+```
+useWebSocket()
+```
+
+This hook:
+
+* opens a WebSocket connection to the Binance ticker stream
+* parses incoming messages
+* updates React state with the latest price data
+* provides connection status to the UI
+
+This keeps WebSocket logic isolated from UI components.
+
+---
+
+### State Management
+
+State management relies primarily on:
+
+* React local state
+* custom hooks
+
+Examples:
+
+* `useWebSocket` for live market data
+* `useFavorites` for managing favorite markets
+* `useRecentMarkets` for recently viewed markets
+
+User preferences are stored using **localStorage**.
+
+---
+
+### Failure Handling and Reconnection
+
+The WebSocket hook includes **automatic reconnection logic**.
+
+If the connection closes:
+
+1. The status changes to `disconnected`
+2. A reconnection attempt is scheduled
+3. The hook reconnects after a short delay
+
+Connection status is reflected in the UI using indicators such as:
+
+* Connected
+* Connecting
+* Reconnecting
+* Disconnected
+
+This ensures the interface remains responsive even when network interruptions occur.
+
