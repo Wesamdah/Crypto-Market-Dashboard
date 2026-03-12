@@ -70,10 +70,6 @@ Several assumptions were made during development:
 
 Some implementation decisions were made to balance simplicity and functionality within the assignment time constraints.
 
-### Local State vs Global State
-
-The application uses **React hooks and component state** instead of a global state manager (such as Redux or Zustand).
-This keeps the architecture simple and easy to maintain.
 
 ### REST + WebSocket Combination
 
